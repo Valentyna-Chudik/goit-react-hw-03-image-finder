@@ -1,26 +1,43 @@
 import { Component } from 'react';
-import axios from 'axios';
+import imagesApi from '../../services/images-api';
 
-// 19042677-37d14c32a93614679ae39c658
+import Searchbar from '../Searchbar/Searchbar';
+
 export default class GalleryView extends Component {
   state = {
     images: [],
+    currentPage: 1,
+    searchQuery: '',
   };
 
-  componentDidMount() {
-    axios
-      .get(
-        'https://pixabay.com/api/?q=dog&page=1&key=19042677-37d14c32a93614679ae39c658&image_type=photo&orientation=horizontal&per_page=12',
-      )
-      .then(response => {
-        this.setState({ images: response.data.hits });
-      });
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.searchQuery !== this.state.searchQuery) {
+      this.fetchImages();
+    }
   }
+
+  onChangeQuery = query => {
+    this.setState({ searchQuery: query, currentPage: 1, images: [] });
+  };
+
+  fetchImages = () => {
+    const { currentPage, searchQuery } = this.state;
+    const options = { searchQuery, currentPage };
+
+    imagesApi.fetchImages(options).then(images => {
+      this.setState(prevState => ({
+        images: [...prevState.images, ...images],
+        currentPage: prevState.currentPage + 1,
+      }));
+    });
+  };
 
   render() {
     const { images } = this.state;
+
     return (
       <div>
+        <Searchbar onSubmit={this.onChangeQuery} />
         <ul>
           {images.map(({ id, webformatURL, largeImageURL, tags }) => (
             <li key={id}>
@@ -32,6 +49,11 @@ export default class GalleryView extends Component {
             </li>
           ))}
         </ul>
+        {images.length > 0 && (
+          <button type="button" onClick={this.fetchImages}>
+            Load more
+          </button>
+        )}
       </div>
     );
   }
