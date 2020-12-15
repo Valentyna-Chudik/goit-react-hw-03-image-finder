@@ -1,8 +1,11 @@
 import { Component } from 'react';
-import Loader from 'react-loader-spinner';
+
 import imagesApi from '../../services/images-api';
 
 import Searchbar from '../Searchbar/Searchbar';
+import ImageGallery from '../ImageGallery/ImageGallery';
+import Button from '../Button/Button';
+import LoaderSpinner from '../Loader/Loader';
 
 export default class GalleryView extends Component {
   state = {
@@ -10,6 +13,7 @@ export default class GalleryView extends Component {
     currentPage: 1,
     searchQuery: '',
     isLoading: false,
+    error: null,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -19,7 +23,12 @@ export default class GalleryView extends Component {
   }
 
   onChangeQuery = query => {
-    this.setState({ searchQuery: query, currentPage: 1, images: [] });
+    this.setState({
+      searchQuery: query,
+      currentPage: 1,
+      images: [],
+      error: null,
+    });
   };
 
   fetchImages = () => {
@@ -36,42 +45,33 @@ export default class GalleryView extends Component {
           currentPage: prevState.currentPage + 1,
         }));
       })
+      .catch(error => this.setState({ error }))
       .finally(() => this.setState({ isLoading: false }));
   };
 
+  onLoadMore = () => {
+    this.fetchImages();
+    this.scrollPage();
+  };
+
+  scrollPage = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
+
   render() {
-    const { images, isLoading } = this.state;
+    const { images, isLoading, error } = this.state;
     const shouldRenderLoadMoreBtn = images.length > 0 && !isLoading;
 
     return (
       <div>
+        {error && <h1>Something went wrong</h1>}
         <Searchbar onSubmit={this.onChangeQuery} />
-
-        <ul>
-          {images.map(({ id, webformatURL, largeImageURL, tags }) => (
-            <li key={id}>
-              <img
-                src={webformatURL}
-                data-source={largeImageURL}
-                alt={tags}
-              ></img>
-            </li>
-          ))}
-        </ul>
-        {isLoading && (
-          <Loader
-            type="Oval"
-            color="#00BFFF"
-            height={80}
-            width={80}
-            timeout={3000}
-          />
-        )}
-        {shouldRenderLoadMoreBtn && (
-          <button type="button" onClick={this.fetchImages}>
-            Load more
-          </button>
-        )}
+        <ImageGallery images={images} />
+        {isLoading && <LoaderSpinner />}
+        {shouldRenderLoadMoreBtn && <Button onLoadMore={this.onLoadMore} />}
       </div>
     );
   }

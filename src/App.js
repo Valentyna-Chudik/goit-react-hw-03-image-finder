@@ -1,9 +1,12 @@
+import { Component } from 'react';
 import GalleryView from './components/GalleryView/GalleryView';
 
-export default function App() {
-  return (
-    <div>
-      <GalleryView />
-    </div>
-  );
+export default class App extends Component {
+  render() {
+    return (
+      <div>
+        <GalleryView />
+      </div>
+    );
+  }
 }

@@ -6,7 +6,7 @@ export default class Searchbar extends Component {
   };
 
   handleChange = e => {
-    this.setState({ query: e.currentTarget.value });
+    this.setState({ query: e.currentTarget.value.toLowerCase() });
   };
 
   handleSubmit = e => {
