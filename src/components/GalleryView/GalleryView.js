@@ -1,8 +1,6 @@
 import { Component } from 'react';
 
 import imagesApi from '../../services/images-api';
-
-import Searchbar from '../Searchbar/Searchbar';
 import ImageGallery from '../ImageGallery/ImageGallery';
 import Button from '../Button/Button';
 import LoaderSpinner from '../Loader/Loader';
@@ -11,29 +9,30 @@ export default class GalleryView extends Component {
   state = {
     images: [],
     currentPage: 1,
-    searchQuery: '',
     isLoading: false,
     error: null,
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchQuery !== this.state.searchQuery) {
-      this.fetchImages();
+    const prevQuery = prevProps.query;
+    const nextQuery = this.props.query;
+
+    if (prevQuery !== nextQuery) {
+      this.setState(
+        {
+          currentPage: 1,
+          images: [],
+          error: null,
+        },
+        () => this.fetchImages(),
+      );
     }
   }
 
-  onChangeQuery = query => {
-    this.setState({
-      searchQuery: query,
-      currentPage: 1,
-      images: [],
-      error: null,
-    });
-  };
-
   fetchImages = () => {
-    const { currentPage, searchQuery } = this.state;
-    const options = { searchQuery, currentPage };
+    const { currentPage } = this.state;
+    const { query } = this.props;
+    const options = { query, currentPage };
 
     this.setState({ isLoading: true });
 
@@ -68,7 +67,6 @@ export default class GalleryView extends Component {
     return (
       <div>
         {error && <h1>Something went wrong</h1>}
-        <Searchbar onSubmit={this.onChangeQuery} />
         <ImageGallery images={images} />
         {isLoading && <LoaderSpinner />}
         {shouldRenderLoadMoreBtn && <Button onLoadMore={this.onLoadMore} />}
