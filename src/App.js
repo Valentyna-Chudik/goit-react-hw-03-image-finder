@@ -1,4 +1,6 @@
 import { Component } from 'react';
+
+import Container from './components/Container/Container';
 import Searchbar from './components/Searchbar/Searchbar';
 import GalleryView from './components/GalleryView/GalleryView';
 
@@ -13,10 +15,10 @@ export default class App extends Component {
 
   render() {
     return (
-      <div>
+      <Container>
         <Searchbar onSubmit={this.handleFormSubmit} />
         <GalleryView query={this.state.query} />
-      </div>
+      </Container>
     );
   }
 }

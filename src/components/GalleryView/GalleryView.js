@@ -4,6 +4,7 @@ import imagesApi from '../../services/images-api';
 import ImageGallery from '../ImageGallery/ImageGallery';
 import Button from '../Button/Button';
 import LoaderSpinner from '../Loader/Loader';
+import Section from '../Section/Section';
 
 export default class GalleryView extends Component {
   state = {
@@ -69,7 +70,9 @@ export default class GalleryView extends Component {
         {error && <h1>Something went wrong</h1>}
         <ImageGallery images={images} />
         {isLoading && <LoaderSpinner />}
-        {shouldRenderLoadMoreBtn && <Button onLoadMore={this.onLoadMore} />}
+        <Section>
+          {shouldRenderLoadMoreBtn && <Button onLoadMore={this.onLoadMore} />}
+        </Section>
       </div>
     );
   }
