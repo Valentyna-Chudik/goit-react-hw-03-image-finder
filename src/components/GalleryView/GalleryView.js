@@ -1,10 +1,12 @@
 import { Component } from 'react';
+import { toast } from 'react-toastify';
 
 import imagesApi from '../../services/images-api';
 import ImageGallery from '../ImageGallery/ImageGallery';
 import Button from '../Button/Button';
 import LoaderSpinner from '../Loader/Loader';
 import Section from '../Section/Section';
+import Modal from '../Modal/Modal';
 
 export default class GalleryView extends Component {
   state = {
@@ -12,6 +14,9 @@ export default class GalleryView extends Component {
     currentPage: 1,
     isLoading: false,
     error: null,
+    showModal: false,
+    largeImageURL: '',
+    alt: '',
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -44,9 +49,14 @@ export default class GalleryView extends Component {
           images: [...prevState.images, ...images],
           currentPage: prevState.currentPage + 1,
         }));
+        if (images.length === 0) {
+          toast.error(' Nothing was found');
+          return;
+        }
       })
+
       .catch(error => this.setState({ error }))
-      .finally(() => this.setState({ isLoading: false }));
+      .finally(() => this.setState({ isLoading: false }), this.scrollPage());
   };
 
   onLoadMore = () => {
@@ -55,20 +65,47 @@ export default class GalleryView extends Component {
   };
 
   scrollPage = () => {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth',
+    // window.scrollTo({
+    //   top: document.documentElement.scrollHeight,
+    //   behavior: 'smooth',
+    // });
+    setTimeout(() => {
+      window.scrollBy({
+        top: document.documentElement.clientHeight - 160,
+        behavior: 'smooth',
+      });
+    }, 500);
+  };
+
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+    }));
+  };
+
+  onOpenModal = e => {
+    this.setState({
+      largeImageURL: e.target.dataset.source,
+      alt: e.target.alt,
     });
+
+    this.toggleModal();
   };
 
   render() {
-    const { images, isLoading, error } = this.state;
+    const { images, isLoading, showModal, largeImageURL, alt } = this.state;
     const shouldRenderLoadMoreBtn = images.length > 0 && !isLoading;
 
     return (
       <div>
-        {error && <h1>Something went wrong</h1>}
-        <ImageGallery images={images} />
+        <ImageGallery images={images} onClick={this.onOpenModal} />
+        {showModal && (
+          <Modal
+            largeImgURL={largeImageURL}
+            alt={alt}
+            onClose={this.toggleModal}
+          />
+        )}
         {isLoading && <LoaderSpinner />}
         <Section>
           {shouldRenderLoadMoreBtn && <Button onLoadMore={this.onLoadMore} />}
