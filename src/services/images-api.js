@@ -1,4 +1,3 @@
-/* eslint-disable import/no-anonymous-default-export */
 import axios from 'axios';
 
 const API_KEY = '19042677-37d14c32a93614679ae39c658';
@@ -12,4 +11,8 @@ const fetchImages = ({ query = '', currentPage = 1 }) => {
     .then(response => response.data.hits);
 };
 
-export default { fetchImages };
+const api = {
+  fetchImages,
+};
+
+export default api;

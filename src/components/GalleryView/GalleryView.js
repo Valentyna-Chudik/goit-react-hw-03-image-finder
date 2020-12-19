@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 
 import imagesApi from '../../services/images-api';
@@ -19,6 +20,10 @@ export default class GalleryView extends Component {
     alt: '',
   };
 
+  static propTypes = {
+    query: PropTypes.string.isRequired,
+  };
+
   componentDidUpdate(prevProps, prevState) {
     const prevQuery = prevProps.query;
     const nextQuery = this.props.query;
@@ -30,12 +35,12 @@ export default class GalleryView extends Component {
           images: [],
           error: null,
         },
-        () => this.fetchImages(),
+        () => this.searchImages(),
       );
     }
   }
 
-  fetchImages = () => {
+  searchImages = () => {
     const { currentPage } = this.state;
     const { query } = this.props;
     const options = { query, currentPage };
@@ -50,25 +55,20 @@ export default class GalleryView extends Component {
           currentPage: prevState.currentPage + 1,
         }));
         if (images.length === 0) {
-          toast.error(' Nothing was found');
+          toast.error('Nothing was found');
           return;
         }
       })
-
       .catch(error => this.setState({ error }))
-      .finally(() => this.setState({ isLoading: false }), this.scrollPage());
+      .finally(() => this.setState({ isLoading: false }));
   };
 
   onLoadMore = () => {
-    this.fetchImages();
+    this.searchImages();
     this.scrollPage();
   };
 
   scrollPage = () => {
-    // window.scrollTo({
-    //   top: document.documentElement.scrollHeight,
-    //   behavior: 'smooth',
-    // });
     setTimeout(() => {
       window.scrollBy({
         top: document.documentElement.clientHeight - 160,
